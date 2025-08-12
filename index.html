@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>الناشر  لخطة توزيع المناهج</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- (اختياري) لتفعيل الإرسال بالبريد لاحقًا:
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  -->
+
+<style>
+  :root{
+    --panel-bg:#fff; --panel-bd:#e5e7eb; --panel-title:#0f172a;
+    --tag:#2563eb; --muted:#6b7280; --chip:#eef2ff;
+    --gap:16px;
+  }
+
+  /* ===== شاشة ===== */
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:'Cairo',sans-serif;background:#f5f7fa;color:#0f172a}
+  .wrap{max-width:1200px;margin:auto;padding:16px}
+
+  /* شريط علوي */
+  .topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-bottom:12px}
+  .btn{cursor:pointer;border:1px solid #d1d5db;background:#fff;border-radius:10px;padding:8px 12px;font-weight:700}
+  .btn:hover{box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+  .btn.primary{background:#2563eb;color:#fff;border-color:#2563eb}
+
+  /* بطاقة إدخال الهوية */
+  .panel{background:var(--panel-bg);border:1px solid var(--panel-bd);border-radius:14px}
+  .panel-hd{padding:10px 14px;border-bottom:1px dashed var(--panel-bd);font-weight:800}
+  .panel-bd{padding:12px 14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  label{font-weight:700}
+  input[type="text"],input[type="email"]{
+    padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;min-width:220px;background:#fff
+  }
+  .muted{color:var(--muted)}
+  .hint{font-size:12px;color:var(--muted)}
+
+  /* الترويسة + التذييل (عرض) */
+  .site-header{
+    display:grid;grid-template-columns:220px 1fr 220px;gap:12px;
+    background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:12px;margin:12px 0
+  }
+  .site-header .col{display:flex;align-items:center;gap:10px}
+  .site-header .center{justify-content:center}
+  .site-header .left{flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .logo{width:200px;height:100px;border:none;background:transparent;border-radius:12px;object-fit:contain;}
+  .title{margin:0;text-align:center;font-weight:800;font-size:26px;line-height:1.2}
+
+  /* شبكة الأسابيع على الشاشة */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
+  @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+
+  /* بطاقة أسبوع (قراءة فقط) */
+  .card{
+    background:#fff;border:0;border-radius:14px;
+    box-shadow:0 8px 22px rgba(2,6,23,.06), 0 1px 3px rgba(15,23,42,.06);
+    display:flex;flex-direction:column;overflow:hidden
+  }
+  .card-header{display:flex;justify-content:center;align-items:center;padding:10px 12px;background:#f8fbff;border-bottom:1px solid #e5e7eb}
+  .badge{background:var(--chip);color:#1e3a8a;padding:6px 10px;border-radius:10px;font-weight:800}
+  .card-body{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+
+  /* التاريخ سطران */
+  .date-lines{display:flex;flex-direction:column;align-items:center;gap:4px;margin:2px 0 6px}
+  .hijri-line{font-size:14px;color:#334155;font-weight:700}
+  .greg-line{font-size:14px;color:#2563eb;font-weight:800}
+
+  /* سطور الأيام (أرقام) */
+  .day{display:grid;grid-template-columns:40px 1fr;align-items:center;gap:8px}
+  .day label{font-weight:800;color:#0f172a;text-align:center}
+  .day .val{
+    padding:4px 0;border-bottom:1px dashed #cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+  }
+
+  /* تذييل (عرض) */
+  .site-footer{text-align:center;color:#6b7280;font-weight:700;margin:16px auto 24px}
+  .footer-names{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+  .footer-pill{background:#fff;border:1px solid #d1d5db;border-radius:12px;padding:8px 14px;font-weight:800;min-width:260px}
+
+  /* ===== طباعة صفحة واحدة (A3/A4) ===== */
+  @media print{
+    html{font-size:8.5px}
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+    /* أخفِ عناصر التحكم */
+    .panel,.topbar{display:none!important}
+
+    /* متغيرات افتراضية للطباعة */
+    :root{
+      --hdr:22mm;       /* ارتفاع الترويسة */
+      --ftr:16mm;       /* ارتفاع التذييل */
+      --gapP:2.6mm;     /* فجوات الشبكة */
+      --mTop:10mm;      /* بداية المحتوى المثبّت */
+      --mBottom:8mm;    /* نهاية المحتوى المثبّت */
+    }
+
+    /* تُستبدل بالـ JS عند الضغط على A3/A4 */
+    @page{ size:A4 landscape; margin:6mm }
+
+    /* الترويسة المثبتة */
+    .site-header{
+      position:fixed;left:5mm;right:5mm;top:var(--mTop);height:var(--hdr);
+      margin:0;padding:4mm;border-radius:8px;background:#fff
+    }
+    .site-header .logo{width:256px;height:128px}
+    .site-header .title{font-size:13px}
+
+    /* الشبكة 5×4 بين الرأس والذيل */
+    #weeks{
+      position:fixed;left:5mm;right:5mm;
+      top:calc(var(--mTop) + var(--hdr) + 1mm);
+      bottom:calc(var(--mBottom) + var(--ftr));
+      display:grid;gap:var(--gapP);
+      grid-template-columns:repeat(5,1fr);
+      grid-template-rows:repeat(4,minmax(0,1fr));
+      align-items:stretch;align-content:stretch;
+    }
+
+    /* البطاقة: لا قصّ */
+    .card{
+      box-shadow:none;border-radius:8px;height:100%!important;
+      overflow:visible !important;
+      break-inside:avoid; page-break-inside:avoid;
+    }
+    .card-header{padding:1mm;background:#f8fbff;border:0}
+    .badge{padding:.8mm 1.6mm;font-size:9px}
+
+    .card-body{
+      padding:1mm;gap:1mm;
+      display:flex;flex-direction:column;min-height:0; /* مهم لفليكس */
+    }
+    .date-lines{margin:.8mm 0 1.2mm}
+    .hijri-line,.greg-line{font-size:8px}
+    .day{grid-template-columns:30px 1fr;gap:1mm}
+    .day .val{font-size:6.6px;min-height:7px;line-height:1.1}
+
+    /* التذييل المثبّت */
+    .site-footer{
+      position:fixed;left:5mm;right:5mm;bottom:var(--mBottom);height:var(--ftr);
+      margin:0;padding-top:2mm;background:#fff
+    }
+
+    /* وضع A4 المضغوط لمنع أي قصّ */
+    body.a4fit{
+      --hdr:18.5mm;         /* رأس أصغر */
+      --ftr:12mm;           /* ذيل أصغر */
+      --gapP:1.6mm;         /* فجوات أصغر */
+    }
+    body.a4fit #weeks{
+      top:calc(var(--mTop) + var(--hdr) + .5mm);
+      bottom:calc(var(--mBottom) + var(--ftr) - 1mm);
+      gap:var(--gapP);
+    }
+    body.a4fit .site-header{ padding:2.6mm }
+    body.a4fit .site-header .logo{ width:160px;height:60px }
+    body.a4fit .site-header .title{ font-size:11.5px }
+
+    body.a4fit .card-header{ padding:.6mm }
+    body.a4fit .badge{ font-size:7.6px; padding:.5mm 1mm }
+
+    body.a4fit .card-body{ padding:.55mm; gap:.45mm; min-height:0 }
+    body.a4fit .date-lines{ margin:.4mm 0 .8mm }
+    body.a4fit .hijri-line, body.a4fit .greg-line{ font-size:6.8px }
+
+    body.a4fit .day{ grid-template-columns:24px 1fr; gap:.45mm }
+    body.a4fit .day .val{
+      font-size:5.6px; min-height:5.2px; line-height:1.05;
+      border-bottom:1px dashed #9ca3af;
+    }
+  }
+</style>
+
+  <style id="uiHide">
+  /* إخفاء العناصر غير المطلوبة في نسخة النشر (اختياري) */
+   #btnEmail, #applyMeta, #loadPlan, #dataUrl, label[for="dataUrl"], #emailInput, label[for="emailInput"] { display:none !important }
+  .panel-bd .row { row-gap:8px } 
+    /* إخفاء جمل التلميح */
+  .panel-bd .hint{ display:none !important; }
+</style>
+
+  <style id="printPageSize"></style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- أزرار -->
+    <div class="topbar">
+      <button id="btnA3" class="btn">📄 PDF — A3 صفحة واحدة</button>
+      <button id="btnA4" class="btn">📄 PDF — A4 صفحة واحدة</button>
+      <button id="btnEmail" class="btn">✉️ إرسال إلى البريد</button>
+    </div>
+
+    <!-- بطاقة إدخال الهوية -->
+    <section class="panel">
+      <div class="panel-hd">بيانات الهوية — ستظهر في الترويسة/التذييل</div>
+      <div class="panel-bd">
+        <div class="row" style="margin-bottom:8px">
+          <label for="eduInput">إدارة التعليم:</label><input id="eduInput" type="text" placeholder="إدارة التعليم">
+          <label for="schoolInput">اسم المدرسة:</label><input id="schoolInput" type="text" placeholder="مدرسة ...">
+        </div>
+        <div class="row" style="margin-bottom:8px">
+          <label for="mgrInput">اسم المدير/ة:</label><input id="mgrInput" type="text" placeholder="اسم المدير/ة">
+          <label for="tchInput">اسم المعلم/ة:</label><input id="tchInput" type="text" placeholder="اسم المعلم/ة">
+        </div>
+        <div class="row" style="margin-bottom:8px">
+          <label for="emailInput">البريد الإلكتروني:</label><input id="emailInput" type="email" placeholder="name@example.com">
+          <button id="applyMeta" class="btn primary" type="button">تطبيق</button>
+          <span class="hint">يُحفظ محليًا تلقائيًا.</span>
+        </div>
+        <div class="row">
+          <label for="dataUrl">مصدر الخطة (JSON):</label>
+          <input id="dataUrl" type="text" placeholder="اتركه فارغًا لاستخدام ?data= أو plan.json">
+          <button id="loadPlan" class="btn" type="button">تحميل الخطة</button>
+          <span class="hint">يمكن وضع ?data=رابط.json في العنوان.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- الترويسة -->
+    <header class="site-header" id="printHeader">
+      <div class="col right"><img id="logoImg" class="logo" alt="شعار" src=""></div>
+      <div class="col center"><h1 class="title" id="headerTitle">توزيع المنهج</h1></div>
+      <div class="col left">
+        <div id="eduLine" style="font-weight:800">إدارة التعليم</div>
+        <div id="schoolLine" class="muted">اسم المدرسة</div>
+      </div>
+    </header>
+
+    <!-- الشبكة -->
+    <section id="weeks" class="grid"></section>
+<!-- التذييل -->
+<footer class="site-footer" id="printFooter" role="contentinfo">
+  <div class="footer-names">
+    <div class="footer-pill" id="footerTeacher">اسم المعلم/ة: —</div>
+    <div class="footer-pill" id="footerManager">اسم المدير/ة: —</div>
+  </div>
+
+  <div class="footer-meta">
+    <span>تصميم وبرمجة: أ/فاطمة هزازي 🦋</span>
+    <span class="sep">—</span>
+    <a href="https://t.me/fatmahhzaze" dir="ltr" target="_blank" rel="noopener">t.me/fatmahhzaze</a>
+  </div>
+
+  <div class="copyright">جميع الحقوق محفوظة لملتقى معلمي ومعلمات الرياضيات</div>
+</footer>
+
+  <!-- قالب البطاقة -->
+  <template id="week-tpl">
+    <article class="card" data-week>
+      <div class="card-header">
+        <span class="badge" data-week-title></span>
+      </div>
+      <div class="card-body">
+        <div class="date-lines">
+          <div class="hijri-line" data-hijri-line></div>
+          <div class="greg-line"  data-greg-line></div>
+        </div>
+        <!-- أرقام بدل أسماء الأيام -->
+        <div class="day"><label>1</label><div class="val" data-day="0"></div></div>
+        <div class="day"><label>2</label><div class="val" data-day="1"></div></div>
+        <div class="day"><label>3</label><div class="val" data-day="2"></div></div>
+        <div class="day"><label>4</label><div class="val" data-day="3"></div></div>
+        <div class="day"><label>5</label><div class="val" data-day="4"></div></div>
+      </div>
+    </article>
+  </template>
+
+  <script>
+  (function(){
+    // عناصر
+    const DAY_NUMS_AR = ['١','٢','٣','٤','٥'];
+    const DAY_NAMES_AR = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس']; // للتلميح
+
+    const weeksEl   = document.getElementById('weeks');
+    const btnA3     = document.getElementById('btnA3');
+    const btnA4     = document.getElementById('btnA4');
+    const btnEmail  = document.getElementById('btnEmail');
+    const dataUrl   = document.getElementById('dataUrl');
+    const loadPlan  = document.getElementById('loadPlan');
+
+    const headerTitle = document.getElementById('headerTitle');
+    const logoImg     = document.getElementById('logoImg');
+    const eduLine     = document.getElementById('eduLine');
+    const schoolLine  = document.getElementById('schoolLine');
+    const footerTeacher = document.getElementById('footerTeacher');
+    const footerManager = document.getElementById('footerManager');
+
+    const eduInput   = document.getElementById('eduInput');
+    const schoolInput= document.getElementById('schoolInput');
+    const mgrInput   = document.getElementById('mgrInput');
+    const tchInput   = document.getElementById('tchInput');
+    const emailInput = document.getElementById('emailInput');
+    const applyMeta  = document.getElementById('applyMeta');
+
+    const printPageSize = document.getElementById('printPageSize');
+
+    // تخزين محلي لبيانات الهوية
+    const LS_META = 'pub.meta.v1';
+
+    // أدوات تاريخ
+    const pad2 = n => String(n).padStart(2,'0');
+    const fmtGreg = d => `${d.getFullYear()} / ${pad2(d.getMonth()+1)} / ${pad2(d.getDate())}`;
+const fmtHijriDMY = (d) => {
+  try {
+    const f = new Intl.DateTimeFormat(
+      'ar-SA-u-ca-islamic-umalqura-nu-arab',
+      { day:'2-digit', month:'2-digit', year:'numeric' }
+    );
+    const parts = f.formatToParts(d);
+    const pick = t => (parts.find(p => p.type===t)?.value || '').replace(/\u200f/g,'');
+    return `${pick('day')} / ${pick('month')} / ${pick('year')} هـ`;
+  } catch { return 'هجري'; }
+};
+
+    // يطبّق الهوية ويخزنها
+    function applyIdentity(){
+      eduLine.textContent   = eduInput.value.trim()   || 'إدارة التعليم';
+      schoolLine.textContent= schoolInput.value.trim()|| 'اسم المدرسة';
+      footerManager.textContent = 'اسم المدير/ة: ' + (mgrInput.value.trim() || '—');
+      footerTeacher.textContent = 'اسم المعلم/ة: ' + (tchInput.value.trim() || '—');
+      const meta = {
+        edu: eduInput.value||'',
+        school: schoolInput.value||'',
+        mgr: mgrInput.value||'',
+        tch: tchInput.value||'',
+        email: emailInput.value||''
+      };
+      localStorage.setItem(LS_META, JSON.stringify(meta));
+    }
+    // زر "تطبيق" يبقى يعمل
+    applyMeta.addEventListener('click', applyIdentity);
+
+    // --- تطبيق تلقائي بتهدئة (debounce) ---
+    function debounce(fn, delay=300){
+      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); };
+    }
+    const applyIdentityDebounced = debounce(applyIdentity, 300);
+    [eduInput, schoolInput, mgrInput, tchInput, emailInput].forEach(el=>{
+      if(!el) return;
+      el.addEventListener('input', applyIdentityDebounced);
+      el.addEventListener('change', applyIdentityDebounced);
+    });
+
+    // تحميل الهوية عند الدخول
+    (function loadIdentity(){
+      try{
+        const raw = localStorage.getItem(LS_META);
+        if(!raw) return;
+        const m = JSON.parse(raw);
+        eduInput.value = m.edu||'';
+        schoolInput.value = m.school||'';
+        mgrInput.value = m.mgr||'';
+        tchInput.value = m.tch||'';
+        emailInput.value = m.email||'';
+        applyIdentity();
+      }catch(_){}
+    })();
+
+    // اختيار رابط JSON من ?data= أو من الحقل أو plan.json
+    function pickDataURL(){
+      const u = dataUrl.value.trim();
+      if(u) return u;
+      const params = new URLSearchParams(location.search);
+      const fromQ = params.get('data');
+      if(fromQ) return fromQ;
+      return 'plan.json';
+    }
+
+    // تصحيح مسار/ترميز الشعار
+    function setLogoSrc(raw){
+      const s = (raw || '').trim();
+      if(!s) return;
+      logoImg.src = s.startsWith('data:image/')
+        ? s.replace(/\s+/g,'').replace(/ /g,'+')
+        : s;
+    }
+
+    // رسم الأسابيع
+    function renderWeeks(weeks, title, logo, hdrMeta){
+      weeksEl.innerHTML = '';
+      if (title) headerTitle.textContent = title;
+      if (logo)  setLogoSrc(logo);
+
+      // لو فيه بيانات هوية داخل header في JSON، اعرضها
+      if(hdrMeta){
+        if(hdrMeta.edu)    eduLine.textContent    = hdrMeta.edu;
+        if(hdrMeta.school) schoolLine.textContent = hdrMeta.school;
+        if(hdrMeta.mgr)    footerManager.textContent = 'اسم المدير/ة: ' + hdrMeta.mgr;
+        if(hdrMeta.tch)    footerTeacher.textContent = 'اسم المعلم/ة: ' + hdrMeta.tch;
+      }
+
+      weeks.forEach((w,idx)=>{
+        const tpl = document.getElementById('week-tpl').content.cloneNode(true);
+        const node= tpl.firstElementChild;
+        node.querySelector('[data-week-title]').textContent = `الأسبوع ${idx+1}`;
+
+        const df = new Date(w.from);
+        const dt = new Date(w.to);
+        node.querySelector('[data-hijri-line]').textContent = `${fmtHijriDMY(df)} — ${fmtHijriDMY(dt)}`;
+        node.querySelector('[data-greg-line]').textContent  = `${fmtGreg(df)} — ${fmtGreg(dt)}`;
+
+        const days = Array.isArray(w.days) ? w.days : [];
+        node.querySelectorAll('.val').forEach(val=>{
+          const i = Number(val.dataset.day);
+          val.textContent = (days[i] || '').trim();
+        });
+
+        // أرقام عربية-هندية + تلميح
+        node.querySelectorAll('.day label').forEach((lab, i) => {
+          lab.textContent = DAY_NUMS_AR[i] || lab.textContent;
+          lab.title = DAY_NAMES_AR[i] || '';
+        });
+
+        weeksEl.appendChild(node);
+      });
+
+      // أعِد تطبيق مدخلات المستخدم بعد الرسم (أولوية أعلى من JSON)
+      applyIdentity();
+    }
+
+    // تحميل الخطة من JSON (يدعم top-level أو داخل header)
+    async function loadPlanFromJSON(){
+      const url = pickDataURL();
+      try{
+        const res = await fetch(url, {cache:'no-store'});
+        if(!res.ok) throw 0;
+        const j = await res.json();
+
+        const title = j.title || (j.header && j.header.title) || null;
+        const logo  = j.logo  || (j.header && j.header.logo)  || null;
+        const hdrMeta = j.header || null;
+        const weeks = Array.isArray(j.weeks) ? j.weeks : [];
+
+        renderWeeks(weeks, title, logo, hdrMeta);
+      }catch(e){
+        alert('تعذّر تحميل ملف الخطة JSON.\nتحقق من الرابط والصلاحيات (CORS).');
+      }
+    }
+
+    loadPlan.addEventListener('click', loadPlanFromJSON);
+    loadPlanFromJSON();
+
+    // طباعة صفحة واحدة بمقاس محدد
+    function printOnePage(size, tight=false){
+      applyIdentity(); // تأكيد أخير قبل الطباعة
+      printPageSize.textContent =
+        `@media print{ @page{ size:${size} landscape; margin:6mm } }`;
+      document.body.classList.toggle('a4fit', !!tight);
+      setTimeout(()=>{ try{ window.print(); }catch(_){} }, 30);
+    }
+
+    btnA3.addEventListener('click', ()=> printOnePage('A3', false)); // بدون ضغط
+    btnA4.addEventListener('click', ()=> printOnePage('A4', true));  // مع ضغط
+
+    window.addEventListener('afterprint', ()=> {
+      document.body.classList.remove('a4fit');
+    });
+
+    // ——— إرسال إلى البريد (اختياري) ———
+    const EMAILJS_PUBLIC_KEY = '';
+    const EMAILJS_SERVICE_ID = '';
+    const EMAILJS_TEMPLATE_ID = '';
+
+    async function sendEmail(){
+      const to = emailInput.value.trim();
+      if(!to){ alert('اكتب البريد الإلكتروني أولًا.'); return; }
+      if(!window.emailjs || !EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID){
+        alert('إرسال البريد غير مفعّل. فعّل EmailJS (انظر التعليق أعلى الصفحة) أو استخدم تنزيل PDF.');
+        return;
+      }
+      try{
+        window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+        const area = document.querySelector('.wrap');
+        const canvas = await html2canvas(area, { scale: 2, useCORS:true });
+        const dataUrl = canvas.toDataURL('image/png');
+        const params = {
+          to_email: to,
+          edu: eduInput.value || '',
+          school: schoolInput.value || '',
+          mgr: mgrInput.value || '',
+          tch: tchInput.value || '',
+          img_data: dataUrl
+        };
+        await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+        alert('تم إرسال النسخة إلى بريدك.');
+      }catch(err){
+        alert('تعذّر الإرسال عبر EmailJS. تحقق من الإعدادات.');
+      }
+    }
+    document.getElementById('btnEmail').addEventListener('click', sendEmail);
+  })();
+  </script>
+</body>
+</html>
